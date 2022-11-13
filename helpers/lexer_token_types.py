@@ -1,13 +1,16 @@
-class LexerType:
-    RANGE_IDENTIFIER = "RANGE_IDENTIFIER"
-    RANGE = "RANGE"
-    OPEN_CURLY_BRACKETS = "{"
-    CLOSE_CURLY_BRACKETS = "}"
-    SEMI_COLON = ";"
-    COLON = ":"
-    EQUAL = "="
-    INVALID = "INVALID"
-    CSS_VARIABLE = "CSS_VARIABLE"
-    ELEMENT_CLASS ="ELEMENT_CLASS"
-    ELEMENT_ID = "ELEMENT_ID"
-    
+class SYM:
+    LEFT_BRACE = '{'
+    RIGHT_BRACE = '}'
+    LEFT_ROUND = '('
+    RIGHT_ROUND = ')'
+    NEW_LINE = '\n'
+    TAB = '    '
+    COLON = ':'
+    SEMI_COLON = ';'
+    SPACE = ' '
+    COMMA = ','
+    EQUAL = '='
+    UNION = '-'
+    DOT = '.'
+    AT = '@'
+    RANGE_START_STOP = '|'
