@@ -2,13 +2,21 @@ import time
 from models.lexer_token import LexerToken
 from helpers.lexer_token_types import SYM
 from copy import deepcopy
+from sys import argv
+from watchdog.observers import Observer
+from watchdog.events import LoggingEventHandler
+
+print(argv)
 
 source = ""
 old_source = ""
 
+btcss_path = argv[1]
+css_path = argv[2]
+
 def main():
     start_time = time.time()
-    f = open("dest/main.btcss")
+    f = open(btcss_path)
     source = f"{f.read()} "
     f.close()
     KEYWORDS = [
@@ -31,7 +39,7 @@ def main():
     lex_collection:dict = lexer.generate_lex_collection()
     tree:dict = lex_collection["tree"]
     end_time = time.time()
-    print(*lexemes, sep = "\n")
+    # print(*lexemes, sep = "\n")
     ranges:dict = lex_collection["ranges"]
     new_tree:dict = deepcopy(tree)
     for index ,(block_key, block) in enumerate(tree.items()):
@@ -56,13 +64,12 @@ def main():
                 if block_key_to_be_deleted in temp_tree:
                     del temp_tree[block_key_to_be_deleted]
             new_tree.update(temp_tree)
-    # for index ,(id, block) in enumerate(new_tree.items()):
-    #     print(id,block)
+
     css_string = LexerToken.get_css_from_tree(new_tree)
-    f = open("dest/main.css","a")
+    f = open(css_path,"w")
     f.write(css_string)
     f.close()
-    print(f"Time took to run: {end_time - start_time}")
+    # print(f"Time took to run: {end_time - start_time}")
 
 def replace_with_range_items(block:dict,range_key:str,range:list,block_key:str):
     new_block = {}
@@ -77,4 +84,15 @@ def replace_with_range_items(block:dict,range_key:str,range:list,block_key:str):
     return new_block
 
 if __name__ == "__main__":
-    main()
+    event_handler = LoggingEventHandler()
+    observer = Observer()
+    observer.schedule(event_handler,btcss_path,True)
+    observer.start()
+    try:
+        while True:
+            main()
+            time.sleep(1)
+    finally:
+        observer.stop()
+        observer.join()
+        
