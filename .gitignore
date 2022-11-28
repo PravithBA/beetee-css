@@ -1,1 +1,3 @@
 dest/
+__pycache__/
+*.pyc
