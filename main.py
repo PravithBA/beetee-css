@@ -34,42 +34,34 @@ def main():
         SYM.RANGE_START_STOP
     ]
     lexer = LexerToken(source,KEYWORDS)
-    lexemes = lexer.get_lexemes()
-    lexemes.append("")
+    lexer.get_lexemes()
     lex_collection:dict = lexer.generate_lex_collection()
     tree:dict = lex_collection["tree"]
     end_time = time.time()
-    # print(*lexemes, sep = "\n")
     ranges:dict = lex_collection["ranges"]
-    new_tree:dict = deepcopy(tree)
+    updated_tree:dict = deepcopy(tree)
+    # Loop for applying ranges, i.e creating new blocks for ranges
     for index ,(block_key, block) in enumerate(tree.items()):
         block_key:str = block_key
-        block:dict = block
         valid_ranges = []
         temp_tree = deepcopy(tree)
-        temp_current_tree = {block_key:deepcopy(block)}
+        temp_current_tree_item = { block_key:deepcopy(block)}
         if block_key.count("$") > 0:
-            block_keys_to_be_deleted = [block_key]
             for sub_id_index,sub_id in enumerate(block_key.replace(" ","-").split("-")):
                 if sub_id.replace("$","") in ranges:
                     valid_ranges.append(sub_id.replace("$",""))
                     range_key = sub_id.replace("$","")
                     range = ranges[range_key]
-                    for i, (temp_block_key,temp_block) in enumerate(temp_current_tree.items()):
-                        if temp_block_key.count("$") > 0:
-                            block_keys_to_be_deleted.append(temp_block_key)
-                        temp_current_tree = deepcopy(replace_with_range_items(temp_block,range_key,range,temp_block_key))
-                        temp_tree.update(temp_current_tree)
-            for block_key_to_be_deleted in block_keys_to_be_deleted:
-                if block_key_to_be_deleted in temp_tree:
-                    del temp_tree[block_key_to_be_deleted]
-            new_tree.update(temp_tree)
-
-    css_string = LexerToken.get_css_from_tree(new_tree)
+                    temp = deepcopy(temp_current_tree_item)
+                    for i, (temp_block_key,temp_block) in enumerate(temp.items()):
+                        temp_current_tree_item.update(replace_with_range_items(temp_block,range_key,range,temp_block_key))
+                        temp_tree.update(temp_current_tree_item)
+            updated_tree.update(temp_tree)
+    css_string = LexerToken.get_css_from_tree(updated_tree)
     f = open(css_path,"w")
     f.write(css_string)
     f.close()
-    # print(f"Time took to run: {end_time - start_time}")
+    print(f"Time took to run: {end_time - start_time}")
 
 def replace_with_range_items(block:dict,range_key:str,range:list,block_key:str):
     new_block = {}
